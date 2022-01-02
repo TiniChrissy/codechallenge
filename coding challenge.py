@@ -1,58 +1,73 @@
 import re
 x:int
 y:int
-f = "N"
-
+f = "NORTH"
 
 while True:
     # if x and y are not set, continue to next iteration of loop
-    # numbers = line.split()
-    val = input("Please give command (one of PLACE, MOVE, LEFT, RIGHT, REPORT)\n").lower()
-    aa = re.split(', |\n', val)
-    print(aa)
-    # print(x, y)
+    val = input("Please give command (one of PLACE, MOVE, LEFT, RIGHT, REPORT)\n").upper()
+    val = re.split(' |,| ', val)
+    filteredVal = list(filter(None, val))
 
-    if val == "place":
-        print("d")
-    if val == "move" and x :
-        print("before move", x, y, f )
+    print("input", filteredVal)
+    
+    command = filteredVal[0]
+
+    if command == "PLACE":
+        x = int(filteredVal[1])
+        y = int(filteredVal[2])
+        f = filteredVal[3]
+        print(filteredVal)
+        print(x, y)
+    if command == "MOVE":
+        # print("before move", x, y, f )
         match f: 
-            case "N": 
+            case "NORTH": 
                 if y + 1 > 5: 
-                    print("Robot doesn't want to fall of the table, please give another command")
+                    print("Robot doesn't want to fall off the table, please give another command")
+                    continue
                 y = y + 1
-            case "E": 
+            case "EAST": 
+                if x + 1 > 5: 
+                    print("Robot doesn't want to fall off the table, please give another command")
+                    continue
                 x = x + 1
-            case "S":
+            case "SOUTH":
+                if y - 1 < 0: 
+                    print("Robot doesn't want to fall off the table, please give another command")
+                    continue
                 y = y - 1
-            case "W":
+            case "WEST":
+                if x - 1 < 0: 
+                    print("Robot doesn't want to fall off the table, please give another command")
+                    continue
                 x = x - 1
         print("after move", x, y, f)
 
-    if val == "left": 
+    if command == "LEFT": 
         print("before turn", x, y, f)
         match f: 
-            case "N": 
-                f = "W"
-            case "E": 
-                f = "N"
-            case "S":
-                f = "E"
-            case "W":
-                f = "S"
-        print("after turn", getCurrentFace())
+            case "NORTH": 
+                f = "WEST"
+            case "EAST": 
+                f = "NORTH"
+            case "SOUTH":
+                f = "EAST"
+            case "WEST":
+                f = "SOUTH"
+        print("after turn", f)
     
-    if val == "right": 
-        print("before turn", getCurrentFace())
+    if command == "RIGHT": 
+        print("before turn", f)
         match f: 
-            case "N": 
-                f = "E"
-            case "E": 
-                f = "S"
-            case "S":
-                f = "W"
-            case "W":
-                f = "N"
+            case "NORTH": 
+                f = "EAST"
+            case "EAST": 
+                f = "SOUTH"
+            case "SOUTH":
+                f = "WEST"
+            case "WEST":
+                f = "NORTH"
         print("after turn", x, y, f)
-    if val == "report": 
-        print(x, y, f)
+    if command == "REPORT": 
+        print(x, ",", y, f)
