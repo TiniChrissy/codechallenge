@@ -50,8 +50,9 @@ fun input() : List<String> {
     print("Please give command (one of PLACE, MOVE, LEFT, RIGHT, REPORT)\n")
     val input = readLine()?.lowercase()
     val splitInput = input?.split(",", " ")?.toMutableList()
-    splitInput?.remove("")
-    println("split input $splitInput") //testing purposes, to be deleted
+    splitInput?.removeAll(listOf(""))
+    println("split input $splitInput, count ${splitInput?.count()}") //testing purposes, to be deleted
+//    println("index 2 ${splitInput?.get(2)}  index 3 ${splitInput?.get(3)}")
     val returnValue: List<String>
 
     try {
@@ -87,18 +88,34 @@ fun move(position: Position): Position {
         north ->  {
             if (y + 1 > 5) {
                 println("Robot doesn't want to fall off the table, please give another command")
-                input()
                 return position
             }
             return Position(x, y+ 1, north)
         }
-//            if y + 1 > 5:
-//        print("Robot doesn't want to fall off the table, please give another command")
-//        continue
-//                y = y + 1
-        east -> return Position(x, y, north)
-        south -> return Position(x, y, east)
-        west -> return Position(x, y, south)
+        east ->  {
+            if (x + 1 > 5) {
+                println("Robot doesn't want to fall off the table, please give another command")
+                return position
+            }
+            return Position(x+1, y, east)
+        }
+
+        south ->  {
+            if (y - 1 < 0) {
+                println("Robot doesn't want to fall off the table, please give another command")
+                return position
+            }
+            return Position(x, y - 1, south)
+        }
+
+        west ->  {
+            if (x - 1 < 0) {
+                println("Robot doesn't want to fall off the table, please give another command")
+                return position
+            }
+            return Position(x -1, y, west)
+        }
+
     }
     return position
 }
