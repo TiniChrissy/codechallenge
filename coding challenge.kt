@@ -8,32 +8,36 @@ data class Position(                                          // Create position
 )
 //Magic strings
 const val place = "place"
-val move = "move"
-val left = "left"
-val right = "right"
-val report = "report"
+const val move = "move"
+const val left = "left"
+const val right = "right"
+const val report = "report"
 
-val north = "north"
-val east = "east"
-val south = "south"
-val west = "west"
+const val north = "north"
+const val east = "east"
+const val south = "south"
+const val west = "west"
 
 fun toyRobotControl() {
-    var currentRobotPosition = Position(0, 0, north)
+    var currentRobotPosition = Position(999, 999, north)
 
     var firstIteration = true
     while (true) {
         val userInput = input()
-        val command = userInput[0]
+        val command = if (userInput.isEmpty()) continue else userInput[0]
 
         var robotPosition = Position(1, 1, north)
         if (command == place) {
-            robotPosition = parseInput(userInput)
+            robotPosition?.also { } ?: continue
+
+            var temp = parsePosition(userInput)
+            temp?.also { var notNull = temp } ?: continue
+            parsePosition(userInput)
             firstIteration = false
         }
 
-        if (firstIteration && command != place) {
-            println("Please first enter place command. e.g: place 4,5 east")
+        if (currentRobotPosition.x == 999 && command != place) {
+            println("Please first enter a valid place command. e.g: place 4,5 east")
             continue
         }
 
@@ -43,6 +47,9 @@ fun toyRobotControl() {
             left -> currentRobotPosition = turn(left, currentRobotPosition)
             right -> currentRobotPosition = turn(right, currentRobotPosition)
             report -> report(currentRobotPosition)
+            else -> {
+                println("Perhaps you misspelled your command?")
+            }
         }
     }
 }
@@ -52,7 +59,6 @@ fun input() : List<String> {
     val splitInput = input?.split(",", " ")?.toMutableList()
     splitInput?.removeAll(listOf(""))
     println("split input $splitInput, count ${splitInput?.count()}") //testing purposes, to be deleted
-//    println("index 2 ${splitInput?.get(2)}  index 3 ${splitInput?.get(3)}")
     val returnValue: List<String>
 
     try {
@@ -64,14 +70,21 @@ fun input() : List<String> {
     return returnValue
 }
 
-fun parseInput(input: List<String>): Position {
+fun parsePosition(input: List<String>): Position? {
     try {
-        if (input != null && input.count() > 1) {
+        if (input.count() > 1) {
             //the command should be place "place 1, 3 north"
             val x = input[1].toInt()
             val y = input[2].toInt()
             val face = input[3]
-            return Position(x, y, face)
+
+            if (x in 0.. 5 && y in 0.. 5) {
+                return Position(x, y, face)
+            } else {
+                println("Please place robot on a grid of 5 x 5")
+                return null
+            }
+
         }
     } catch (e: Exception) {
         print("help") //delete
