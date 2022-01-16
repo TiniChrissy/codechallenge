@@ -1,46 +1,51 @@
 fun main() {
     toyRobotControl()
 }
-data class Position(                                          // Create position dataclass
+
+// Position class holds all relevant information about robot positioning
+data class Position(
     var x: Int,
     var y: Int,
-    var face: String                       // Provide a default value for the argument
+    var face: String                // The direction the robot is facing
 )
-//Magic strings
+
+//Valid commands
 const val place = "place"
 const val move = "move"
 const val left = "left"
 const val right = "right"
 const val report = "report"
 
+//Valid directions/face
 const val north = "north"
 const val east = "east"
 const val south = "south"
 const val west = "west"
 
-fun toyRobotControl() {
-    var currentRobotPosition = Position(999, 999, north)
+const val outOfBoundsCoordinate = 999
 
-    var firstIteration = true
+fun toyRobotControl() {
+    // Default robot position is not on the board, used to check if placed yet
+    var currentRobotPosition = Position(outOfBoundsCoordinate, outOfBoundsCoordinate, north)
+
     while (true) {
         val userInput = input()
         val command = if (userInput.isEmpty()) continue else userInput[0]
 
-        var robotPosition = Position(1, 1, north)
+//        var robotPosition = Position(1, 1, north)
+        var robotPosition: Position
         if (command == place) {
-            robotPosition?.also { } ?: continue
-
-            var temp = parsePosition(userInput)
-            temp?.also { var notNull = temp } ?: continue
-            parsePosition(userInput)
-            firstIteration = false
+            robotPosition = parsePosition(userInput) ?: continue
         }
 
-        if (currentRobotPosition.x == 999 && command != place) {
+        // Check that first command is a valid place command
+        // Only way that outOfBoundsCoordinate is possible is if the place command hasn't run yet
+        if (currentRobotPosition.x == outOfBoundsCoordinate && command != place) {
             println("Please first enter a valid place command. e.g: place 4,5 east")
             continue
         }
 
+        // currentRobotPosition is constantly updated/used by various functions/commands
         when(command) {
             place -> currentRobotPosition = place(robotPosition)
             move -> currentRobotPosition = move(currentRobotPosition)
@@ -53,12 +58,13 @@ fun toyRobotControl() {
         }
     }
 }
+
+// Read input from user, remove delimiters and whitespace, return in array format
 fun input() : List<String> {
     print("Please give command (one of PLACE, MOVE, LEFT, RIGHT, REPORT)\n")
     val input = readLine()?.lowercase()
     val splitInput = input?.split(",", " ")?.toMutableList()
     splitInput?.removeAll(listOf(""))
-    println("split input $splitInput, count ${splitInput?.count()}") //testing purposes, to be deleted
     val returnValue: List<String>
 
     try {
@@ -70,45 +76,47 @@ fun input() : List<String> {
     return returnValue
 }
 
+// Input: User input in the expected format converted to a list of strings e.g. [place, 4, 4, east]
+// Output: Position class
 fun parsePosition(input: List<String>): Position? {
-    try {
-        if (input.count() > 1) {
-            //the command should be place "place 1, 3 north"
-            val x = input[1].toInt()
-            val y = input[2].toInt()
-            val face = input[3]
+    if (input.count() > 1) {
+        val x = input[1].toInt()
+        val y = input[2].toInt()
+        val face = input[3]
 
-            if (x in 0.. 5 && y in 0.. 5) {
-                return Position(x, y, face)
-            } else {
-                println("Please place robot on a grid of 5 x 5")
-                return null
-            }
-
+        // If position is within 5x5 boundary return position
+        if (x in 0.. 5 && y in 0.. 5) {
+            return Position(x, y, face)
+        } else { //Otherwise, return null position
+            println("Please place robot on a grid of 5 x 5")
+            return null
         }
-    } catch (e: Exception) {
-        print("help") //delete
     }
-    return  Position(2, 2, north)
+    println("aaa")
+    return null
 }
+
+// Slightly useless but it's to hide implementation details and for consistency
 fun place(position: Position): Position {
     return position
 }
 
-fun move(position: Position): Position {
-    val (x, y, face) = position
+// input: starting position
+// output: position after attempted move
+fun move(startingPosition: Position): Position {
+    val (x, y, face) = startingPosition
     when (face) {
         north ->  {
             if (y + 1 > 5) {
                 println("Robot doesn't want to fall off the table, please give another command")
-                return position
+                return startingPosition
             }
             return Position(x, y+ 1, north)
         }
         east ->  {
             if (x + 1 > 5) {
                 println("Robot doesn't want to fall off the table, please give another command")
-                return position
+                return startingPosition
             }
             return Position(x+1, y, east)
         }
@@ -116,7 +124,7 @@ fun move(position: Position): Position {
         south ->  {
             if (y - 1 < 0) {
                 println("Robot doesn't want to fall off the table, please give another command")
-                return position
+                return startingPosition
             }
             return Position(x, y - 1, south)
         }
@@ -124,15 +132,16 @@ fun move(position: Position): Position {
         west ->  {
             if (x - 1 < 0) {
                 println("Robot doesn't want to fall off the table, please give another command")
-                return position
+                return startingPosition
             }
             return Position(x -1, y, west)
         }
 
     }
-    return position
+    return startingPosition
 }
 
+// Returns a new position with a rotated face based on direction.
 fun turn(direction: String, position: Position): Position{
     if (direction == left) {
         val (x, y, face) = position
@@ -153,10 +162,10 @@ fun turn(direction: String, position: Position): Position{
             west -> return Position(x, y, north)
         }
     }
-
-    return Position(3, 3, north) //Should never occur
+    return Position(3, 3, north) // Necessary return, but this should never occur.
 }
 
+// Print position based on input position
 fun report(position: Position) {
     val (x, y, face) = position
     println("$x, $y, $face")
