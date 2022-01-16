@@ -63,14 +63,7 @@ fun input() : List<String> {
     val input = readLine()?.lowercase()
     val splitInput = input?.split(",", " ")?.toMutableList()
     splitInput?.removeAll(listOf(""))
-    val returnValue: List<String>
-
-    try {
-        returnValue = splitInput!!.toList()
-    } catch (e: IndexOutOfBoundsException) {
-        print("IndexOutOfBoundsException")
-        return emptyList()
-    }
+    val returnValue: List<String> = splitInput!!.toList()
     return returnValue
 }
 
