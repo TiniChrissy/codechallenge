@@ -22,36 +22,34 @@ const val east = "east"
 const val south = "south"
 const val west = "west"
 
+val directions = listOf(north, east, south, west)
 const val outOfBoundsCoordinate = 999
 
 fun toyRobotControl() {
     // Default robot position is not on the board, used to check if placed yet
-    var currentRobotPosition = Position(outOfBoundsCoordinate, outOfBoundsCoordinate, north)
+    var robotPosition = Position(outOfBoundsCoordinate, outOfBoundsCoordinate, north)
 
     while (true) {
         val userInput = input()
         val command = if (userInput.isEmpty()) continue else userInput[0]
 
-//        var robotPosition = Position(1, 1, north)
-        var robotPosition: Position
-        if (command == place) {
-            robotPosition = parsePosition(userInput) ?: continue
-        }
-
         // Check that first command is a valid place command
         // Only way that outOfBoundsCoordinate is possible is if the place command hasn't run yet
-        if (currentRobotPosition.x == outOfBoundsCoordinate && command != place) {
+        if (robotPosition.x == outOfBoundsCoordinate && command != place) {
             println("Please first enter a valid place command. e.g: place 4,5 east")
             continue
         }
 
         // currentRobotPosition is constantly updated/used by various functions/commands
         when(command) {
-            place -> currentRobotPosition = place(robotPosition)
-            move -> currentRobotPosition = move(currentRobotPosition)
-            left -> currentRobotPosition = turn(left, currentRobotPosition)
-            right -> currentRobotPosition = turn(right, currentRobotPosition)
-            report -> report(currentRobotPosition)
+            place -> {
+                val newRobotPosition = parsePosition(userInput) ?: continue
+                robotPosition = place(newRobotPosition)
+            }
+            move -> robotPosition = move(robotPosition)
+            left -> robotPosition = turn(left, robotPosition)
+            right -> robotPosition = turn(right, robotPosition)
+            report -> report(robotPosition)
             else -> {
                 println("Perhaps you misspelled your command?")
             }
@@ -79,21 +77,22 @@ fun input() : List<String> {
 // Input: User input in the expected format converted to a list of strings e.g. [place, 4, 4, east]
 // Output: Position class
 fun parsePosition(input: List<String>): Position? {
-    if (input.count() > 1) {
-        val x = input[1].toInt()
-        val y = input[2].toInt()
-        val face = input[3]
-
-        // If position is within 5x5 boundary return position
-        if (x in 0.. 5 && y in 0.. 5) {
-            return Position(x, y, face)
-        } else { //Otherwise, return null position
-            println("Please place robot on a grid of 5 x 5")
-            return null
-        }
+    if (input.count() != 4) {
+        println("Incorrect number of inputs provided for command")
+        return null
     }
-    println("aaa")
+    val x = input[1].toInt()
+    val y = input[2].toInt()
+    val face = input[3]
+
+    // If position is within 5x5 boundary return position
+    if (x in 0.. 5 && y in 0.. 5 && face in directions) {
+        return Position(x, y, face)
+    } else { //Otherwise, return null position
+    println("Please place robot on a grid of 5 x 5 with a valid direction")
     return null
+    }
+
 }
 
 // Slightly useless but it's to hide implementation details and for consistency
